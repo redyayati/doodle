@@ -63,26 +63,97 @@ training.extend(cats['training'])
 training.extend(airplane['training'])
 training.extend(rainbow['training'])
 # training.extend(apple['training'])
-random.shuffle(training)
 
-# for i in range(len(training)) : 
 
-print(f'Starting to train with {len(training)} datas...')
-for i in range(len(training)) :
-    inputs = []
-    data = training[i][:784]
-    for j in range(len(data)) : 
-        element = data[j] / 255
-        inputs.append(element)
-    label = training[i][784]
-    targets = [0,0,0]
-    targets[label] = 1 
-    nn.train(inputs , targets)
-print("trained for one epoch")
 
-with open('ML/doodle/data/nn.obj' , 'wb') as f : 
-        pickle.dump(nn , f)
+
+# Traing : 
+def trainEpoch(data) : 
+    print(f'Starting to train with {len(data)} datas...')
+    random.shuffle(data)
+    n = len(data)
+    for i in range(1) :
+        inputs = []
+        dataArray = data[400][:784]
+        for j in range(len(dataArray)) : 
+            element = dataArray[j] / 255
+            inputs.append(element)
+        label = data[i][784]
+        targets = [0,0,0]
+        targets[label] = 1 
+        nn.train(inputs , targets)
+    print("trained for one epoch")
+
+
+# with open('ML/doodle/data/nn.obj' , 'wb') as f :  # For saving the model
+#         pickle.dump(nn , f)
+
 # print(inputs)
 # print(len(inputs))
 # print(label)
 # print(targets)
+
+# trainEpoch(training)
+
+
+testing = []
+testing.extend(cats['testing'])
+testing.extend(airplane['testing'])
+testing.extend(rainbow['testing'])
+# print(len(testing))
+# print(len(testing[1]))
+# print(testing[550][784])
+
+xtras = {'training':[] , 'testing':[]}
+new = []
+for i in range(200) : 
+    array = []
+    for j in range(length) : 
+        index = (i+200)*length  + j 
+        array.append(airplane_data[index])
+    array.append(1)  # last element is the label 
+    xtras['testing'].append(array)
+
+# print(len(xtras['testing']))
+# print(xtras['testing'][1])
+testing.extend(xtras['testing'])
+
+# Testing : 
+with open('ML/doodle/data/nn.obj' , 'rb') as f : 
+        model = pickle.load(f)
+
+def testAll(testing) : 
+    correct = 0
+    n = len(testing)
+    t = 50
+    for i in range(n) :
+        inputs = []
+        testingArray = testing[i][:784]
+        for j in range(len(testingArray)) : 
+            element = testingArray[j] / 255
+            inputs.append(element)
+        label = testing[i][784]
+        guess = model.predict(inputs)
+        guessIndex = guess.index(max(guess))
+        if label == guessIndex : correct += 1 
+    print("done testing ! ")
+    print("percentage correct : " + str(correct * 100/n))
+    
+# Single data test :
+def singleTest(testData) : 
+    inputs = []
+    testingArray = testData[:784]
+    for j in range(len(testingArray)) : 
+        element = testingArray[j] / 255
+        inputs.append(element)
+    label = testData[784]
+    guess = model.predict(inputs)
+    guessIndex = guess.index(max(guess))
+    print("done testing ! ")
+    print(guess)
+    print("label is : ", label)
+    print("predicted : " , guessIndex)
+
+# singleTest(testing[10])
+
+testAll(testing)
